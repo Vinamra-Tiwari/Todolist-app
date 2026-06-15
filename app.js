@@ -21,7 +21,11 @@ dotenv.config({ path: "./config.env" });
 // Set up mongoose connection "MongoDB Atlas"
 
 const DB = process.env.DATABASE || "mongodb://mongo:27017/todolistDB";
-mongoose.connect(DB);
+mongoose.connect(DB, {
+  serverSelectionTimeoutMS: 5000
+}).catch(err => {
+  console.error("MongoDB connection failed:", err.message);
+});
 
 // Mongoose Schema for individual to-do list items
 const itemSchema = new mongoose.Schema({
@@ -57,6 +61,9 @@ const List = mongoose.model("List", listSchema);
 
 // Default route for the home page
 app.get("/", function (req, res) {
+  if (mongoose.connection.readyState !== 1) {
+    return res.status(500).send("Database connection error. Please configure the DATABASE environment variable in your Vercel project settings with a valid MongoDB Atlas URI.");
+  }
   // Find all items in the collection
   Item.find({})
     .then((foundItems) => {
