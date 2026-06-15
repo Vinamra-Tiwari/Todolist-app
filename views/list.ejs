@@ -5,7 +5,7 @@
       <div class="top-bar">
         <div class="search-bar">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" placeholder="Search for any task you want..." disabled>
+          <input type="text" id="searchInput" placeholder="Search for any task you want...">
         </div>
       </div>
 
@@ -89,5 +89,20 @@
 
     </div>
   </div>
+
+  <script>
+    document.getElementById('searchInput').addEventListener('input', function(e) {
+      const term = e.target.value.toLowerCase();
+      const rows = document.querySelectorAll('.task-row');
+      rows.forEach(row => {
+        const text = row.querySelector('.task-name').textContent.toLowerCase();
+        if (text.includes(term)) {
+          row.style.display = 'flex';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  </script>
 </body>
 <%- include("footer") -%>
