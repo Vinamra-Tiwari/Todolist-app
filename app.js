@@ -105,12 +105,15 @@ app.get("/", function (req, res) {
 app.post("/", function (req, res) {
   const itemName = req.body.newItem;
   const listName = req.body.list;
+  const itemPriority = req.body.priority || "Normal";
 
   // Check if itemName is not an empty string
   if (itemName.trim() !== "") {
     // Create a new item based on the input
     const item = new Item({
       name: itemName,
+      priority: itemPriority,
+      status: "Pending"
     });
 
     if (listName === "Today") {
@@ -168,6 +171,36 @@ app.post("/delete", function (req, res) {
       { $pull: { items: { _id: checkItemId } } }
     );
     res.redirect("/" + listName);
+  }
+});
+
+// Route for completing/toggling items
+app.post("/complete", async function (req, res) {
+  const listName = req.body.listName;
+  const itemId = req.body.itemId;
+
+  try {
+    if (listName === "Today") {
+      const item = await Item.findById(itemId);
+      if (item) {
+        item.status = item.status === "Completed" ? "Pending" : "Completed";
+        await item.save();
+      }
+      res.redirect("/");
+    } else {
+      const foundList = await List.findOne({ name: listName });
+      if (foundList) {
+        const item = foundList.items.id(itemId);
+        if (item) {
+          item.status = item.status === "Completed" ? "Pending" : "Completed";
+          await foundList.save();
+        }
+      }
+      res.redirect("/" + listName);
+    }
+  } catch (err) {
+    console.log(err);
+    res.redirect(listName === "Today" ? "/" : "/" + listName);
   }
 });
 

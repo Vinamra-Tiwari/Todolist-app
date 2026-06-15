@@ -103,6 +103,22 @@ body {
   border-color: #9B51E0;
 }
 
+.priority-select {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  font-size: 14px;
+  outline: none;
+  background: white;
+  color: #4A5568;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.priority-select:focus {
+  border-color: #9B51E0;
+}
+
 .add-btn {
   background: #9B51E0;
   color: white;

@@ -16,6 +16,11 @@
         
         <form class="add-form" action="/" method="post">
           <input type="text" name="newItem" placeholder="Enter new task..." autocomplete="off" required />
+          <select name="priority" class="priority-select">
+            <option value="Normal">Normal</option>
+            <option value="Minor">Minor</option>
+            <option value="Critical">Critical</option>
+          </select>
           <button class="add-btn" type="submit" name="list" value="<%= listTitle %>">
             <i class="fa-solid fa-plus"></i> Add New
           </button>
@@ -32,7 +37,7 @@
         <h2 class="section-title">On Hold</h2>
         <div class="task-list">
           <% onHold.forEach(item => { %>
-            <div class="task-row">
+            <div class="task-row clickable-row" data-id="<%= item._id %>" data-list="<%= listTitle %>">
               <div class="task-info">
                 <span class="dot" style="background-color: #E84C88;"></span>
                 <p class="task-name"><%= item.name %></p>
@@ -59,7 +64,7 @@
         <h2 class="section-title">Completed <span class="badge status-completed">Inactive</span></h2>
         <div class="task-list completed-list">
           <% completed.forEach(item => { %>
-            <div class="task-row">
+            <div class="task-row clickable-row" data-id="<%= item._id %>" data-list="<%= listTitle %>">
               <div class="task-info">
                 <span class="dot" style="background-color: #A0AEC0;"></span>
                 <p class="task-name"><%= item.name %></p>
@@ -103,6 +108,21 @@
         }
       });
     });
+
+    document.querySelectorAll('.clickable-row').forEach(row => {
+      row.style.cursor = 'pointer';
+      row.addEventListener('click', function(e) {
+        if (e.target.closest('.delete-btn')) return;
+        document.getElementById('status-itemId').value = this.dataset.id;
+        document.getElementById('status-listName').value = this.dataset.list;
+        document.getElementById('status-form').submit();
+      });
+    });
   </script>
+
+  <form id="status-form" action="/complete" method="POST" style="display:none;">
+    <input type="hidden" name="itemId" id="status-itemId">
+    <input type="hidden" name="listName" id="status-listName">
+  </form>
 </body>
 <%- include("footer") -%>
