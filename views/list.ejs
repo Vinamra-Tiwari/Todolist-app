@@ -1,42 +1,93 @@
 <%- include("header") -%>
+<body>
+  <div class="dashboard-container">
+    <div class="dashboard-card">
+      <div class="top-bar">
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Search for any task you want..." disabled>
+        </div>
+      </div>
 
-  <body>
-
-    <div class="box" id="heading">
-      <h1>
-        <%= listTitle %>
-      </h1>
-    </div>
-
-    <div class="box">
-
-
-      <% newListItems.forEach(item=> { %>
-
-        <form action="/delete" method="post">
+      <div class="header-section">
+        <div class="title-area">
+          <h1>You've got <span class="highlight"><%= newListItems.length %> tasks</span> today</h1>
+        </div>
         
-          <div class="item">
-            <input type="checkbox" name="checkbox" value="<%= item._id %>" onchange="this.form.submit()">
-            <p>
-              <%= item.name %>
-            </p>
-
-            <input type="hidden" name="listName" value="<%= listTitle %>">
-          </div> 
-
+        <form class="add-form" action="/" method="post">
+          <input type="text" name="newItem" placeholder="Enter new task..." autocomplete="off" required />
+          <button class="add-btn" type="submit" name="list" value="<%= listTitle %>">
+            <i class="fa-solid fa-plus"></i> Add New
+          </button>
         </form>
+      </div>
 
-        <% }); %>
+      <% 
+        const onHold = newListItems.filter(i => i.status !== 'Completed');
+        const completed = newListItems.filter(i => i.status === 'Completed');
+      %>
 
-          <form class="item" action="/" method="post">
+      <% if (onHold.length > 0) { %>
+      <div class="task-section">
+        <h2 class="section-title">On Hold</h2>
+        <div class="task-list">
+          <% onHold.forEach(item => { %>
+            <div class="task-row">
+              <div class="task-info">
+                <span class="dot" style="background-color: #E84C88;"></span>
+                <p class="task-name"><%= item.name %></p>
+              </div>
+              <div class="task-meta">
+                <span class="badge status-<%= item.status.replace(' ', '-').toLowerCase() %>"><%= item.status %></span>
+                <span class="badge priority-<%= item.priority.toLowerCase() %>">
+                  <span class="priority-dot"></span> <%= item.priority %>
+                </span>
+                <form action="/delete" method="post" class="delete-form">
+                  <input type="hidden" name="checkbox" value="<%= item._id %>">
+                  <input type="hidden" name="listName" value="<%= listTitle %>">
+                  <button type="submit" class="delete-btn" title="Delete Task"><i class="fa-solid fa-trash"></i></button>
+                </form>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+      <% } %>
 
-            <input type="text" name="newItem" placeholder="Enter New Item" autocomplete="off" />
+      <% if (completed.length > 0) { %>
+      <div class="task-section">
+        <h2 class="section-title">Completed <span class="badge status-completed">Inactive</span></h2>
+        <div class="task-list completed-list">
+          <% completed.forEach(item => { %>
+            <div class="task-row">
+              <div class="task-info">
+                <span class="dot" style="background-color: #A0AEC0;"></span>
+                <p class="task-name"><%= item.name %></p>
+              </div>
+              <div class="task-meta">
+                <span class="badge status-completed"><%= item.status %></span>
+                <span class="badge priority-<%= item.priority.toLowerCase() %>">
+                  <span class="priority-dot"></span> <%= item.priority %>
+                </span>
+                <form action="/delete" method="post" class="delete-form">
+                  <input type="hidden" name="checkbox" value="<%= item._id %>">
+                  <input type="hidden" name="listName" value="<%= listTitle %>">
+                  <button type="submit" class="delete-btn" title="Delete Task"><i class="fa-solid fa-trash"></i></button>
+                </form>
+              </div>
+            </div>
+          <% }); %>
+        </div>
+      </div>
+      <% } %>
 
-            <button type="submit" name="list" value="<%= listTitle %>">+</button>
-          </form>
+      <% if (newListItems.length === 0) { %>
+        <div class="empty-state">
+          <p>No tasks found. Add a new task to get started!</p>
+        </div>
+      <% } %>
+
     </div>
-
-
-  </body>
-
-  <%- include("footer") -%>
+  </div>
+</body>
+<%- include("footer") -%>
