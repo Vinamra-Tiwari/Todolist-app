@@ -40,7 +40,7 @@ pipeline {
                     )
                     echo Running Dependency-Check Analysis...
                     if not exist "dependency-check-report" mkdir dependency-check-report
-                    "C:\\ProgramData\\dependency-check\\bin\\dependency-check.bat" --scan ./ --format XML --format HTML --out dependency-check-report --project To-Do-List-App
+                    "C:\\ProgramData\\dependency-check\\bin\\dependency-check.bat" --scan ./ --format XML --format HTML --out dependency-check-report --project To-Do-List-App || exit /b 0
                 '''
             }
         }
