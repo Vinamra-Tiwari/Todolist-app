@@ -186,7 +186,12 @@ app.get("/about", function (req, res) {
   res.render("about");
 });
 
-// Start the server at Port 3000
-app.listen(3000, function () {
-  console.log("Server started on port 3000.");
-});
+// Start the server
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(3000, function () {
+    console.log("Server started on port 3000.");
+  });
+}
+
+// Export the app for Vercel
+module.exports = app;

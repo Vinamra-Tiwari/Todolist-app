@@ -24,8 +24,13 @@ pipeline {
                 // Install dependencies
                 bat 'npm install' // use 'sh' if on Linux/macOS Jenkins
                 // Run npm audit. Using --audit-level=high so it doesn't fail on minor issues.
-                // Depending on the environment, you might use OWASP Dependency-Check plugin instead.
-                bat 'npm audit --audit-level=high' 
+                bat 'npm audit --audit-level=high'
+
+                echo 'Running OWASP Dependency-Check...'
+                // Requires the OWASP Dependency-Check Jenkins plugin to be installed.
+                // Results are published to Jenkins and can be ingested by SonarQube.
+                dependencyCheck additionalArguments: '--scan ./ --format XML --format HTML --out dependency-check-report', odcInstallation: 'OWASP-Dependency-Check'
+                dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
             }
         }
 
@@ -62,15 +67,7 @@ pipeline {
             }
         }
 
-        stage('Deploy to Azure Web App') {
-            steps {
-                echo 'Deploying to Azure Web App for Containers...'
-                // You can use the Azure Web App plugin or Azure CLI here
-                // Example using Azure CLI:
-                // bat 'az webapp config container set --name YourWebAppName --resource-group YourResourceGroup --docker-custom-image-name ${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}'
-                echo 'Deployment step placeholder - Ensure Azure CLI is configured.'
-            }
-        }
+
     }
 
     post {
