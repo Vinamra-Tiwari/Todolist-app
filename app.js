@@ -63,9 +63,6 @@ const List = mongoose.model("List", listSchema);
 
 // Default route for the home page
 app.get("/", function (req, res) {
-  if (mongoose.connection.readyState !== 1) {
-    return res.status(500).send("Database connection error. Please configure the DATABASE environment variable in your Vercel project settings with a valid MongoDB Atlas URI.");
-  }
   // Find all items in the collection
   Item.find({})
     .then((foundItems) => {
