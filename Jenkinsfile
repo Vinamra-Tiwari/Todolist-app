@@ -28,9 +28,17 @@ pipeline {
 
                 echo 'Running OWASP Dependency-Check...'
                 // Requires the OWASP Dependency-Check Jenkins plugin to be installed.
-                // Results are published to Jenkins and can be ingested by SonarQube.
-                dependencyCheck additionalArguments: '--scan ./ --format XML --format HTML --out dependency-check-report', odcInstallation: 'OWASP-Dependency-Check'
-                dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
+                // If the plugin is missing, this step is skipped gracefully.
+                script {
+                    try {
+                        dependencyCheck additionalArguments: '--scan ./ --format XML --format HTML --out dependency-check-report', odcInstallation: 'OWASP-Dependency-Check'
+                        dependencyCheckPublisher pattern: 'dependency-check-report/dependency-check-report.xml'
+                    } catch (err) {
+                        echo "WARNING: OWASP Dependency-Check skipped — plugin not installed or tool not configured."
+                        echo "Install the 'OWASP Dependency-Check' Jenkins plugin to enable this step."
+                        unstable(message: 'OWASP Dependency-Check plugin not available')
+                    }
+                }
             }
         }
 
