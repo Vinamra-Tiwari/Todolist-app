@@ -171,6 +171,36 @@ app.post("/delete", function (req, res) {
   }
 });
 
+// Route for completing/toggling items
+app.post("/complete", async function (req, res) {
+  const listName = req.body.listName;
+  const itemId = req.body.itemId;
+
+  try {
+    if (listName === "Today") {
+      const item = await Item.findById(itemId);
+      if (item) {
+        item.status = item.status === "Completed" ? "Pending" : "Completed";
+        await item.save();
+      }
+      res.redirect("/");
+    } else {
+      const foundList = await List.findOne({ name: listName });
+      if (foundList) {
+        const item = foundList.items.id(itemId);
+        if (item) {
+          item.status = item.status === "Completed" ? "Pending" : "Completed";
+          await foundList.save();
+        }
+      }
+      res.redirect("/" + listName);
+    }
+  } catch (err) {
+    console.log(err);
+    res.redirect(listName === "Today" ? "/" : "/" + listName);
+  }
+});
+
 // Custom route for dynamic lists
 app.get("/:customListName", function (req, res) {
   const customListName = _.capitalize(req.params.customListName);
