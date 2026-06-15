@@ -16,6 +16,11 @@
         
         <form class="add-form" action="/" method="post">
           <input type="text" name="newItem" placeholder="Enter new task..." autocomplete="off" required />
+          <select name="priority" class="priority-select">
+            <option value="Normal">Normal</option>
+            <option value="Minor">Minor</option>
+            <option value="Critical">Critical</option>
+          </select>
           <button class="add-btn" type="submit" name="list" value="<%= listTitle %>">
             <i class="fa-solid fa-plus"></i> Add New
           </button>

@@ -105,12 +105,15 @@ app.get("/", function (req, res) {
 app.post("/", function (req, res) {
   const itemName = req.body.newItem;
   const listName = req.body.list;
+  const itemPriority = req.body.priority || "Normal";
 
   // Check if itemName is not an empty string
   if (itemName.trim() !== "") {
     // Create a new item based on the input
     const item = new Item({
       name: itemName,
+      priority: itemPriority,
+      status: "Pending"
     });
 
     if (listName === "Today") {
