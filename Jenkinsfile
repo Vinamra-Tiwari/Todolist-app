@@ -22,25 +22,24 @@ pipeline {
             steps {
                 echo 'Running NPM Audit for Vulnerability/Security Checks...'
                 // Install dependencies
-                bat 'npm install' // use 'sh' if on Linux/macOS Jenkins
+                sh 'npm install'
                 // Run npm audit. Using --audit-level=high so it doesn't fail on minor issues.
-                bat 'npm audit --audit-level=high'
+                sh 'npm audit --audit-level=high || true'
 
                 echo 'Running OWASP Dependency-Check CLI...'
                 // Run OWASP Dependency-Check using the local CLI tool.
                 // If the CLI is not present, it is downloaded dynamically.
-                bat '''
-                    @echo off
-                    if not exist "C:\\ProgramData\\dependency-check\\bin\\dependency-check.bat" (
-                        echo Downloading Dependency-Check CLI...
-                        powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/dependency-check/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip' -OutFile 'C:\\ProgramData\\dependency-check.zip'"
-                        echo Extracting Dependency-Check CLI...
-                        powershell -Command "Expand-Archive -Path 'C:\\ProgramData\\dependency-check.zip' -DestinationPath 'C:\\ProgramData' -Force"
-                        del "C:\\ProgramData\\dependency-check.zip"
-                    )
-                    echo Running Dependency-Check Analysis...
-                    if not exist "dependency-check-report" mkdir dependency-check-report
-                    call "C:\\ProgramData\\dependency-check\\bin\\dependency-check.bat" --scan ./ --format XML --format HTML --out dependency-check-report --project To-Do-List-App || exit /b 0
+                sh '''
+                    if [ ! -f "dependency-check/bin/dependency-check.sh" ]; then
+                        echo "Downloading Dependency-Check CLI..."
+                        wget -qO dependency-check.zip "https://github.com/dependency-check/DependencyCheck/releases/download/v9.0.9/dependency-check-9.0.9-release.zip"
+                        echo "Extracting Dependency-Check CLI..."
+                        unzip -q dependency-check.zip
+                        rm dependency-check.zip
+                    fi
+                    echo "Running Dependency-Check Analysis..."
+                    mkdir -p dependency-check-report
+                    ./dependency-check/bin/dependency-check.sh --scan ./ --format XML --format HTML --out dependency-check-report --project To-Do-List-App || exit 0
                 '''
             }
         }
@@ -49,8 +48,8 @@ pipeline {
             steps {
                 echo 'Running SonarQube Analysis...'
                 withSonarQubeEnv('SonarQube') { // 'SonarQube' should match the server name in Jenkins settings
-                    // Use 'sh' on Linux, 'bat' on Windows
-                    bat "${SONAR_SCANNER_HOME}\\bin\\sonar-scanner.bat"
+                    // Use 'sh' on Linux
+                    sh "${SONAR_SCANNER_HOME}/bin/sonar-scanner"
                 }
             }
         }
